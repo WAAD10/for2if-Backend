@@ -5,7 +5,7 @@ import { CommentTable } from "src/comment/comment_table.entity";
 import { UserTypeTable } from "./user_type_table.entity";
 import { ManyToOne, OneToMany, BaseEntity, Column, Entity, PrimaryColumn, Unique } from "typeorm";
 
-@Entity()
+@Entity() 
 export class UserTable extends BaseEntity 
 {
     @PrimaryColumn({type : 'character varying'})
