@@ -6,7 +6,6 @@ import { UserTypeTable } from "./user_type_table.entity";
 import { ManyToOne, OneToMany, BaseEntity, Column, Entity, PrimaryColumn, Unique } from "typeorm";
 
 @Entity()
-@Unique(['user_name'])
 export class UserTable extends BaseEntity 
 {
     @PrimaryColumn({type : 'character varying'})
