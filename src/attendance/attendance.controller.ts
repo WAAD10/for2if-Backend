@@ -1,28 +1,38 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-// import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 import { AttendanceService } from './attendance.service';
 import { AttendanceDto } from './dto/attendance.dto';
 
 @Controller('attend')
 export class AttendanceController {
-  constructor(private AttendanceService: AttendanceService) {}
-
-  @Get('/')
-  getHello() {
-    return this.AttendanceService.getHello();
-  }
+  constructor(private attendanceService: AttendanceService) {}
 
   @Post('/')
-  // AuthGaurd
+  @UseGuards(AuthGuard())
   attendance(@Body() attendanceDto: AttendanceDto): Promise<string> {
-    return this.AttendanceService.attendance(attendanceDto);
+    return this.attendanceService.attendance(attendanceDto);
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard())
+  attendanceDelete(@Param('id', ParseIntPipe) id: string): Promise<string> {
+    return this.attendanceService.deleteAttendanceCode(id);
+  }
+
+  @Post('/create')
+  @UseGuards(AuthGuard())
+  attendanceCreate(@Body() id: string): Promise<string> {
+    return this.attendanceService.createAttendanceCode(id);
   }
 }
