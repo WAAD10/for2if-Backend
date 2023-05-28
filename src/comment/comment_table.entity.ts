@@ -18,5 +18,5 @@ export class CommentTable extends BaseEntity
     comment_date : string;
 
     @Column({type : 'character varying'})
-    comment_comment : string;
+    comment_content : string;
 }
