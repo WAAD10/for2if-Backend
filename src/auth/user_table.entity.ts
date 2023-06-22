@@ -2,7 +2,6 @@ import { Attendance } from 'src/attendance/attendance.entity';
 import { BoardTable } from 'src/board/board_table.entity';
 import { StudyTable } from 'src/study/study_table.entity';
 import { CommentTable } from 'src/comment/comment_table.entity';
-import { UserTypeTable } from './user_type_table.entity';
 import {
   ManyToOne,
   OneToMany,
@@ -12,6 +11,7 @@ import {
   PrimaryColumn,
   Unique,
 } from 'typeorm';
+import { UserTypeEnum } from './user-type.enum';
 
 @Entity()
 export class UserTable extends BaseEntity {
@@ -21,21 +21,14 @@ export class UserTable extends BaseEntity {
   @Column({ type: 'character varying' })
   user_name: string;
 
-  @ManyToOne((type) => StudyTable, (study_table) => study_table.user_tables, {
-    eager: false,
-    nullable: true,
-  })
-  study: StudyTable;
+    @ManyToOne(type => StudyTable, study_table => study_table.user_tables, {eager : false, nullable : true})
+    study : StudyTable;
 
-  @Column({ type: 'character varying' })
-  user_image: string;
+    @Column({type : 'character varying'})
+    user_image : string;
 
-  @ManyToOne(
-    (type) => UserTypeTable,
-    (user_type_table) => user_type_table.user_tables,
-    { eager: false },
-  )
-  user_type: UserTypeTable;
+    @Column()
+    user_type : UserTypeEnum;
 
   @Column({ type: 'character varying' })
   wallet_id: string;
