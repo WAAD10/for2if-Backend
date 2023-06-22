@@ -17,6 +17,10 @@ export class BoardCategory extends BaseEntity {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  @OneToMany((type) => BoardTable, (board_table) => board_table.board_category)
+  @OneToMany(
+    (type) => BoardTable,
+    (board_table) => board_table.board_category,
+    { eager: true },
+  )
   board_tables: BoardTable[];
 }
