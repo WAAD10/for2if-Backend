@@ -12,5 +12,8 @@ export class BoardImageRepository extends Repository<BoardImage> {}
 
 @Injectable()
 export class BoardTableRepository extends Repository<BoardTable> {
-  async createBoard(createBoardDto: CreateBoardDto): Promise<BoardTable>;
+  constructor(boardtablerepository: BoardTableRepository) {
+	super();
+  }
+  
 }

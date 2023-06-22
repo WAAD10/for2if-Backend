@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Boardstatus } from './board_status.enum';
-import { v4 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   BoardCategoryRepository,
@@ -11,7 +9,9 @@ import { NotFoundError } from 'rxjs';
 import { BoardTable } from './board_table.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CreateBoardDto } from './dto/create_board.dto';
-// import {   } from '@nestjs/typeorm/repository';
+import { UserTable } from 'src/auth/user_table.entity';
+import { ModifyBoardDto } from './dto/modify_board.dto';
+import { DeleteBoardDto } from './dto/delete_board.dte';
 
 @Injectable()
 export class BoardsService {
@@ -20,10 +20,9 @@ export class BoardsService {
     private boardImageRepository: BoardImageRepository,
     private boardTableRepository: BoardTableRepository,
   ) {}
-  private boards: Board[] = [];
 
-  getAllBoards(): Board[] {
-    return this.boards();
+  async getAllBoards(): Promise<Board[]> {
+    return this.boardTableRepository.find();
   }
 
   async getBoardById(id: number): Promise<BoardTable> {
@@ -39,12 +38,62 @@ export class BoardsService {
   async createBoard(createBoardDto: CreateBoardDto): Promise<BoardTable> {
     const { board_title, board_category, board_content, user, board_images } =
       createBoardDto;
+    if (
+      board_category.board_category_id == 0 &&
+      user.user_type.user_type_id != 0
+    ) {
+      //카테고리 0이 공지사항, 유저 타입 0이 관리자라고 가정
+      alert('공지사항은 관리자만 작성할 수 있습니다');
+      return;
+    }
     const board = this.boardTableRepository.create({
       board_title,
+      board_date: Date(),
       board_category,
       board_content,
       user,
       board_images,
     });
+    await this.boardTableRepository.save(board);
+    return board;
   }
-}
+
+  async updateBoardStatus(modifyBoardDto: ModifyBoardDto): Promise<BoardTable> {
+    const {
+      board_id,
+      requesting_user,
+      board_category,
+      board_title,
+      board_content,
+      board_images,
+    } = modifyBoardDto;
+    const board = await this.getBoardById(board_id);
+    if (
+      board_category.board_category_id == 0 &&
+      requesting_user.user_type.user_type_id != 0
+    ) {
+      //카테고리 0이 공지사항, 유저 타입 0이 관리자라고 가정
+      alert('공지사항은 관리자만 작성할 수 있습니다');
+      return;
+    }
+    if (board.user.user_id != requesting_user.user_id) {
+      // 작성자와 변경을 시도하려 하는 사람이 다를 경우
+      alert('작성자만 수정할 수 있습니다');
+      return;
+    }
+
+    board.board_category = board_category;
+    board.board_title = board_title;
+    board.board_content = board_content;
+    board.board_images = board_images;
+
+    await this.boardTableRepository.save(board);
+    return board;
+  }
+
+  async deleteBoard(deleteBoardDto: DeleteBoardDto): Promise<void>{
+    const { board_id, requesting_user } =  deleteBoardDto;
+    const board = this.getBoardById(board_id);
+    
+
+  }
