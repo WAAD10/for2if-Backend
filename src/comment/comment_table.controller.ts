@@ -1,5 +1,7 @@
 import { Body, Delete, Controller, Get, Logger, Param, Post, Put, UnauthorizedException } from "@nestjs/common";
+import { GetUser } from "src/auth/get-user.decorator";
 import { UserTable } from "src/auth/user_table.entity";
+import { BoardsService } from "src/board/board.service";
 import { BoardTable } from "src/board/board_table.entity";
 import { CommentTable } from "./comment_table.entity";
 import { CommentTablePage, CommentTableService } from "./comment_table.service";
@@ -8,7 +10,10 @@ import { CreateCommentDto } from "./dto/create-comment.dto";
 @Controller('comment')
 export class CommentTableController {
     private logger = new Logger('CommentTableController');
-    constructor(private commentTableService : CommentTableService) {}
+    constructor(
+        private commentTableService : CommentTableService,
+        private boardService : BoardsService
+    ) {}
 
     /*
     @Get('/user/:id')
@@ -28,8 +33,8 @@ export class CommentTableController {
     @Post('/board/:id')
     async createComment(
         @Param('id') board_id : number,
-        @Body() createCommentDto : CreateCommentDto //,
-        //@GetUser() user : UserTable
+        @Body() createCommentDto : CreateCommentDto,
+        @GetUser() user : UserTable
     ) : Promise<void> {
         const board = await this.getBoardTableObjectByBoardId(board_id); // board_id를 사용하여 BoardTable객체 가져오는 코드 사용해야 함
         this.logger.verbose(`User ${user.user_id} creating a new comment. Payload : ${JSON.stringify(createCommentDto)}`)
@@ -39,8 +44,8 @@ export class CommentTableController {
     @Put('/:id')
     async editComment(
         @Param('id') comment_id : number,
-        @Body() createCommentDto : CreateCommentDto
-        //@GetUser() user : UserTable
+        @Body() createCommentDto : CreateCommentDto,
+        @GetUser() user : UserTable
     ) : Promise<void> {
         const comment_user = (await this.commentTableService.getCommentById(comment_id)).user;
         if(comment_user !== user) {
@@ -55,7 +60,7 @@ export class CommentTableController {
     @Delete('/:id')
     async deleteComment(
         @Param('id') comment_id : number,
-        //@GetUser() user : UserTable
+        @GetUser() user : UserTable
     ) : Promise<void> {
         const comment_user = (await this.commentTableService.getCommentById(comment_id)).user;
         if(comment_user !== user) {
@@ -67,7 +72,7 @@ export class CommentTableController {
     }
 
     async getBoardTableObjectByBoardId(board_id : number) : Promise<BoardTable> {
-        const ret = new BoardTable; // @@@ 나중에 여기부분 보완 필요 
+        const ret = await this.boardService.getBoardById(board_id);
         return ret;
     }
 

@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserTable } from "src/auth/user_table.entity";
 import { StudyTable } from "src/study/study_table.entity";
+import { StudyTableRepository } from "src/study/study_table.repository";
 import { Attendance } from "./attendance.entity";
 import { AttendanceRepository } from "./attendance.repository";
 import { AttendanceCode } from "./attendance_code.entity";
@@ -12,7 +13,8 @@ export class AttendanceService
 {
     constructor(
         private readonly attendanceCodeRepository : AttendanceCodeRepository,
-        private readonly attendanceRepository : AttendanceRepository
+        private readonly attendanceRepository : AttendanceRepository,
+        private readonly studyRepository : StudyTableRepository
     ) {}
 
     // 출석코드 생성. 이미 존재한다면 존재하는 출석코드 가져오기
@@ -41,5 +43,12 @@ export class AttendanceService
     // 출석정보 들고오기 (스터디랑 유저정보 받아서 뭐시기)
     async getAllAttendances(user : UserTable) : Promise<Attendance[]> {
         return this.attendanceRepository.getAllAttendances(user);
+    }
+
+    async getStudyById(studyId : number) : Promise<StudyTable> {
+        const query = this.studyRepository.createQueryBuilder("studytable");
+        query.where("studytable.study_id = :studyId", {studyId : studyId});
+        const ret = await query.getOne();
+        return ret;
     }
 }
