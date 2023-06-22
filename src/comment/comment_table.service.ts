@@ -25,11 +25,17 @@ export class CommentTableService {
     }
 
     // Board에 달린 댓글들 모두 보여주기 
-    async findAllByBoardID(board_id : number) : Promise<CommentTable[]> {
-        const query = this.commentTableRepository.createQueryBuilder('commenttable');
-        query.where('commenttable.boardId = :boardId', {boardId : board_id});
-        const results = await query.getMany();
-        return results;
+    async findAllByBoardID( board_id : number, page : number) : Promise<CommentTablePage> {
+        const PAGE_SIZE = 5;
+        const query = await this.commentTableRepository.createQueryBuilder('commenttable');
+        const count = await query.where("commenttable.boardId = :board_id", {board_id : board_id})
+                                 .getCount();
+        const skip = (page-1) * PAGE_SIZE;
+        const comments = await query.where("commenttable.boardId = :board_id", {board_id : board_id})
+                                    .offset(page)
+                                    .limit(PAGE_SIZE)
+                                    .getRawMany()        
+        return new CommentTablePage(count, comments);
     }
     
     // 어떤 유저가 쓴 댓글 모두 보여주기
@@ -56,3 +62,13 @@ export class CommentTableService {
         await this.commentTableRepository.save(comment);
     }
 }
+
+export class CommentTablePage {
+    count : number;
+    comments : CommentTable[];
+    constructor(arg_count : number, arg_comments : CommentTable[]) {
+        this.comments = arg_comments;
+        this.count = arg_count;
+    }
+}
+

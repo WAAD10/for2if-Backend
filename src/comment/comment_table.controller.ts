@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Logger, Param, Post, Put, UnauthorizedException } from "@nestjs/common";
+import { Body, Delete, Controller, Get, Logger, Param, Post, Put, UnauthorizedException } from "@nestjs/common";
 import { UserTable } from "src/auth/user_table.entity";
 import { BoardTable } from "src/board/board_table.entity";
 import { CommentTable } from "./comment_table.entity";
-import { CommentTableService } from "./comment_table.service";
+import { CommentTablePage, CommentTableService } from "./comment_table.service";
 import { CreateCommentDto } from "./dto/create-comment.dto";
 
 @Controller('comment')
@@ -10,14 +10,19 @@ export class CommentTableController {
     private logger = new Logger('CommentTableController');
     constructor(private commentTableService : CommentTableService) {}
 
+    /*
     @Get('/user/:id')
     findAllByUserID(user_id : string) :  Promise<CommentTable[]> {
         return this.commentTableService.findAllByUserID(user_id);
     }
+    */
 
-    @Get('/board/:id')
-    findAllByBoardID(@Param('id') board_id : number) :  Promise<CommentTable[]> {
-        return this.commentTableService.findAllByBoardID(board_id);
+    @Get('/')
+    findAllByBoardID(
+        @Param('id') board_id : number,
+        @Param('page') page : number
+    ) :  Promise<CommentTablePage> {
+        return this.commentTableService.findAllByBoardID(board_id, page);
     }
 
     @Post('/board/:id')
@@ -28,12 +33,12 @@ export class CommentTableController {
     ) : Promise<void> {
         const board = await this.getBoardTableObjectByBoardId(board_id); // board_id를 사용하여 BoardTable객체 가져오는 코드 사용해야 함
         this.logger.verbose(`User ${user.user_id} creating a new comment. Payload : ${JSON.stringify(createCommentDto)}`)
-        return this.commentTableService.createComment(createCommentDto, user, board);
+        this.commentTableService.createComment(createCommentDto, user, board);
     }
 
-    @Put('/:comment_id')
+    @Put('/:id')
     async editComment(
-        @Param('comment_id') comment_id : number,
+        @Param('id') comment_id : number,
         @Body() createCommentDto : CreateCommentDto
         //@GetUser() user : UserTable
     ) : Promise<void> {
@@ -47,9 +52,9 @@ export class CommentTableController {
         }
     }
 
-    @Delete('/:comment_id')
+    @Delete('/:id')
     async deleteComment(
-        @Param('comment_id') comment_id : number,
+        @Param('id') comment_id : number,
         //@GetUser() user : UserTable
     ) : Promise<void> {
         const comment_user = (await this.commentTableService.getCommentById(comment_id)).user;
@@ -65,4 +70,21 @@ export class CommentTableController {
         const ret = new BoardTable; // @@@ 나중에 여기부분 보완 필요 
         return ret;
     }
+
+    /*
+    private filterXSS(cont : string) : string {
+        let ret = cont;
+        const to_table = [
+            '&amp;','&lt;','&gt;','&#x27;','&quot;','&#40;','&#41;','&#x2F;','<br>'
+        ]
+        const from_table = [
+            /&/g,/</g,/>/g,/\\/g,/\"/g,/\(/g,/\)/g,/\//g,/\n/g
+        ]
+        for(let i = 0; i < to_table.length; i++)
+        {
+            ret = ret.replace(from_table[i], to_table[i]);
+        }
+        return ret;
+    }
+    */
 }
