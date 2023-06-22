@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BoardController } from './board.controller';
-import { BoardService } from './board.service';
+import { BoardsService } from './board.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   BoardCategoryRepository,
@@ -17,6 +17,6 @@ import {
     ]),
   ],
   controllers: [BoardController],
-  providers: [BoardService],
+  providers: [BoardsService],
 })
 export class BoardModule {}

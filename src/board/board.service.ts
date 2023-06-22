@@ -1,15 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   BoardCategoryRepository,
   BoardImageRepository,
   BoardTableRepository,
 } from './board.repository';
-import { NotFoundError } from 'rxjs';
 import { BoardTable } from './board_table.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CreateBoardDto } from './dto/create_board.dto';
-import { UserTable } from 'src/auth/user_table.entity';
 import { ModifyBoardDto } from './dto/modify_board.dto';
 import { DeleteBoardDto } from './dto/delete_board.dte';
 
@@ -21,7 +17,7 @@ export class BoardsService {
     private boardTableRepository: BoardTableRepository,
   ) {}
 
-  async getAllBoards(): Promise<Board[]> {
+  async getAllBoards(): Promise<BoardTable[]> {
     return this.boardTableRepository.find();
   }
 
@@ -29,7 +25,7 @@ export class BoardsService {
     const found = await this.boardTableRepository.findOneBy({ board_id: id });
 
     if (!found) {
-      throw new NotFoundError(`Can't find Borad with id ${id}`);
+      throw new NotFoundException(`Can't find Borad with id ${id}`);
     }
 
     return found;
@@ -58,7 +54,7 @@ export class BoardsService {
     return board;
   }
 
-  async updateBoardStatus(modifyBoardDto: ModifyBoardDto): Promise<BoardTable> {
+  async modifyBoard(modifyBoardDto: ModifyBoardDto): Promise<BoardTable> {
     const {
       board_id,
       requesting_user,
@@ -91,9 +87,17 @@ export class BoardsService {
     return board;
   }
 
-  async deleteBoard(deleteBoardDto: DeleteBoardDto): Promise<void>{
-    const { board_id, requesting_user } =  deleteBoardDto;
-    const board = this.getBoardById(board_id);
-    
-
+  async deleteBoard(deleteBoardDto: DeleteBoardDto): Promise<void> {
+    const { board_id, requesting_user } = deleteBoardDto;
+    const board = await this.getBoardById(board_id);
+    if (board.user.user_id != requesting_user.user_id) {
+      // 작성자와 삭제를 시도하려 하는 사람이 다를 경우
+      alert('작성자만 삭제할 수 있습니다');
+      return;
+    }
+    const result = await this.boardTableRepository.delete(board_id);
+    if (result.affected == 0) {
+      throw new NotFoundException(`No board found with id ${board_id}`);
+    }
   }
+}

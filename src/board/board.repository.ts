@@ -11,9 +11,4 @@ export class BoardCategoryRepository extends Repository<BoardCategory> {}
 export class BoardImageRepository extends Repository<BoardImage> {}
 
 @Injectable()
-export class BoardTableRepository extends Repository<BoardTable> {
-  constructor(boardtablerepository: BoardTableRepository) {
-	super();
-  }
-  
-}
+export class BoardTableRepository extends Repository<BoardTable> {}
