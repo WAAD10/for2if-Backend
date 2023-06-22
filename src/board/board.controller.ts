@@ -11,29 +11,29 @@ import { ModifyBoardDto } from './dto/modify_board.dto';
 export class BoardController {
   constructor(private boardsService: BoardsService) {}
 
-  @Get('/v1/board?')
+  @Get('/')
   getBoardById(@Param('id') id: number): Promise<BoardTable> {
     return this.boardsService.getBoardById(id);
   }
 
-  @Post('/v1/board')
+  @Post('/')
   @UsePipes(ValidationPipe)
   createBoard(@Body() createBoardDto: CreateBoardDto): Promise<BoardTable>{
 	return this.boardsService.createBoard(createBoardDto);
   }
 
-  @Put('v1/board/:id')
+  @Put('/:id')
   modifyBoard(@Body() modifyBoardDto: ModifyBoardDto): Promise<BoardTable>{
     return this.boardsService.modifyBoard(modifyBoardDto);
   }
 
 
-  @Delete('v1/board/:id')
+  @Delete('/:id')
   deletBoard(@Body() deleteBoardDto: DeleteBoardDto): Promise<void>{
     return this.boardsService.deleteBoard(deleteBoardDto);
   }
 
-  @Get('/v1/board')
+  @Get('/')
   getAllBoards(): Promise<BoardTable[]>{
     return this.boardsService.getAllBoards();
   }

@@ -77,7 +77,7 @@ export class BoardsService {
       alert('작성자만 수정할 수 있습니다');
       return;
     }
-
+    //board 정보 바꾸기
     board.board_category = board_category;
     board.board_title = board_title;
     board.board_content = board_content;
