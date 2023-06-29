@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { UserTable } from "src/auth/user_table.entity";
 import { BoardTable } from "src/board/board_table.entity";
 import { CommentTable } from "./comment_table.entity";
 import { CommentTableRepository } from "./comment_table.repository";
+import { CommentTablePage } from "./comment_table_page";
 import { CreateCommentDto } from "./dto/create-comment.dto";
 
 @Injectable()
@@ -18,23 +19,37 @@ export class CommentTableService {
 
     async getCommentById(comment_id : number) : Promise <CommentTable> {
         const found = await this.commentTableRepository.findOneBy({comment_id});
-        if(!found) {
-            throw new NotFoundException(`Can't find a comment with id ${comment_id}`);
-        }
         return found;
     }
 
+    async IsThisUserNotOwnerOfComment(comment_id : number, user : UserTable) : Promise <boolean> {
+        //const found = await this.commentTableRepository.findOneBy({comment_id, });
+        const query = await this.commentTableRepository.createQueryBuilder('commenttable');
+        const ret   = await query.where("commenttable.comment_id = :comment_id", {comment_id}).andWhere("commenttable.userUserId = :userId", {userId : user.user_id}).getMany();
+        return ret.length===0;
+    }
+
+    // Put : 댓글 가져오기
     // Board에 달린 댓글들 모두 보여주기 
     async findAllByBoardID( board_id : number, page : number) : Promise<CommentTablePage> {
-        const PAGE_SIZE = 5;
+        const PAGE_SIZE : number = 5;
         const query = await this.commentTableRepository.createQueryBuilder('commenttable');
-        const count = await query.where("commenttable.boardId = :board_id", {board_id : board_id})
-                                 .getCount();
+        const count : number = await query.where("commenttable.boardBoardId = :board_id", {board_id : board_id})
+                                          .getCount();
+        if (page <= 0 || page >= ~~(count/page) + 1) // 참고 : bitwise not연산자 두 개를 연속해서 사용할 시 C언어에서의 정수나누기와 동일한 효과를 얻는다(소수점 절삭)
+        {  
+            // 존재하지 않는 페이지를 찾으려고 시도함
+            throw new HttpException({
+                errCode: 400,
+                errMsg: "존재하지 않는 페이지입니다."
+            }, HttpStatus.BAD_REQUEST)
+
+        }
         const skip = (page-1) * PAGE_SIZE;
-        const comments = await query.where("commenttable.boardId = :board_id", {board_id : board_id})
-                                    .offset(page)
-                                    .limit(PAGE_SIZE)
-                                    .getRawMany()        
+        const comments : CommentTable[] = await query.where("commenttable.boardBoardId = :board_id", {board_id : board_id})
+                                                     .offset(skip)
+                                                     .limit(PAGE_SIZE)
+                                                     .getRawMany()
         return new CommentTablePage(count, comments);
     }
     
@@ -63,12 +78,4 @@ export class CommentTableService {
     }
 }
 
-export class CommentTablePage {
-    count : number;
-    comments : CommentTable[];
-    constructor(arg_count : number, arg_comments : CommentTable[]) {
-        this.comments = arg_comments;
-        this.count = arg_count;
-    }
-}
 

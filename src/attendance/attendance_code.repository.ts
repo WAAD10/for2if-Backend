@@ -53,19 +53,21 @@ export class AttendanceCodeRepository extends Repository<AttendanceCode> {
     }
 
     // 해당 스터디의 출석코드 정보 삭제 (없으면 에러발생)
-    async deleteAttendanceCode(study : StudyTable) : Promise<void> {
+    async deleteAttendanceCode(study : StudyTable) : Promise<boolean> {
         const studyId = study.study_id;
-        const result = await this.delete(studyId);
-        if (result.affected === 0) {
-            throw new NotFoundException(`Can't find AttendanceCode with study id ${studyId}`);
+        const query = this.createQueryBuilder('attendancecode');
+        const ret = await this.findAllByStudy(study);
+        if (ret.length == 0) {
+            return false;
         }
-        console.log('result', result);
+        await this.delete({attendance_code_id : ret[0].attendance_code_id});
+        return true;
     }
 
     // 해당 스터디의 출석코드정보 전부 들고오기
     async findAllByStudy (study : StudyTable) : Promise<AttendanceCode[]> {
         const query = this.createQueryBuilder('attendancecode');
-        query.where("attendancecode.studyId = :studyId", {studyId : study.study_id});
+        query.where("attendancecode.studyStudyId = :studyId", {studyId : study.study_id});
         const results = await query.getMany();
         return results;
     }
@@ -99,14 +101,7 @@ export class AttendanceCodeRepository extends Repository<AttendanceCode> {
     // 현재 시간을 "2023-05-28 17:07" 같은 형식으로 반환해주는 함수
     private getCurrentDateTime(): string {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        
-        const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
-        return currentDateTime;
+        return this.formatDate(now);
     }
 
     // 두자리 숫자 문자열 앞에 0 포맷팅 

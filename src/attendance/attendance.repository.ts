@@ -28,8 +28,8 @@ export class AttendanceRepository extends Repository<Attendance> {
     // 해당 user 및 스터디의 출석코드정보 전부 들고오기
     async getAllAttendances(user : UserTable) : Promise<Attendance[]> {
         const query = this.createQueryBuilder('attendance');
-        query.where("attendance.userId = :userId", { userId: user.user_id });
-        const results = await query.getMany();
+        query.where("attendance.userUserId = :userId", { userId: user.user_id });
+        const results = await query.getRawMany();
         return results;
     }
 }
