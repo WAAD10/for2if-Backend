@@ -37,10 +37,8 @@ export class CommentTableController {
                 errMsg: "제출 양식이 틀렸습니다."
             }, HttpStatus.BAD_REQUEST);
         }
-        try {
-            const board = await this.getBoardTableObjectByBoardId(board_id);
-        }
-        catch {
+        const board = await this.getBoardTableObjectByBoardId(board_id);
+        if(board == null) {
             throw new HttpException({
                 errCode: 400,
                 errMsg: "존재하지 않는 게시물입니다."
