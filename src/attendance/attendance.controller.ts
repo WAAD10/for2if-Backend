@@ -121,7 +121,7 @@ export class AttendanceController {
             }, HttpStatus.FORBIDDEN);
         }
         const study = await this.attendanceService.getStudyById(study_id);
-        console.log(study)
+        //console.log(study)
         if(study == null) {
             throw new HttpException({
                 errCode: 400,
@@ -156,7 +156,7 @@ export class AttendanceController {
     private isStringInteger(arg_str) : boolean {
         const numbered : number = Number(arg_str);
         // 애초에 문자열이 number가 맞는지 확인
-        if (!numbered) {
+        if (isNaN(numbered)) {
             return false;
         }
         // number라면 정수인지 확인

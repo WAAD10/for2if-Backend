@@ -165,7 +165,7 @@ export class CommentTableController {
     private isStringInteger(arg_str) : boolean {
         const numbered : number = Number(arg_str);
         // 애초에 문자열이 number가 맞는지 확인
-        if (!numbered) {
+        if (isNaN(numbered)) {
             return false;
         }
         // number라면 정수인지 확인
