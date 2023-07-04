@@ -40,7 +40,7 @@ export class CommentTableService {
         if (page == 1 && count == 0) {
             return new CommentTablePage(0, []);
         }
-        if (page <= -1 || page >= ~~(count/page) + 1) // 참고 : bitwise not연산자 두 개를 연속해서 사용할 시 C언어에서의 정수나누기와 동일한 효과를 얻는다(소수점 절삭)
+        if (page <= 0 || page >= ~~(count/page) + 1) // 참고 : bitwise not연산자 두 개를 연속해서 사용할 시 C언어에서의 정수나누기와 동일한 효과를 얻는다(소수점 절삭)
         {  
             // 존재하지 않는 페이지를 찾으려고 시도함
             throw new HttpException({
