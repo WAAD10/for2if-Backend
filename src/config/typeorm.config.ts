@@ -16,11 +16,11 @@ const typeORMConfig: TypeOrmModuleOptions = {
   type: 'postgres',
   url: process.env.RDS_URL,
   synchronize: dbConfig.synchronize,
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
   entities: [
     UserTable,
     Attendance,
