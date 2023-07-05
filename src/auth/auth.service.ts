@@ -17,28 +17,28 @@ export class AuthService {
   async signIn(userDto: UserDto): Promise<Object> {
     const uid = userDto.uid;
     const wallet = userDto.wallet;
-    // const user = await this.userRepository.findOne({
-    //   where: { user_id: uid },
-    // });
+    const user = await this.userRepository.findOne({
+      where: { user_id: uid },
+    });
 
-    // if (!user) {
-    await this.userRepository
-      .createQueryBuilder()
-      .insert()
-      .into(UserTable)
-      .values([
-        {
-          user_id: uid,
-          user_name: '',
-          wallet_id: wallet,
-          user_image: '',
-          user_type: UserTypeEnum.COMMON,
-        },
-      ])
-      .execute();
-    // }
+    if (!user) {
+      await this.userRepository
+        .createQueryBuilder()
+        .insert()
+        .into(UserTable)
+        .values([
+          {
+            user_id: uid,
+            user_name: '',
+            wallet_id: wallet,
+            user_image: '',
+            user_type: UserTypeEnum.COMMON,
+          },
+        ])
+        .execute();
+    }
 
-    const user_type = UserTypeEnum.COMMON;
+    const user_type = user ? user.user_type : UserTypeEnum.COMMON;
     const payload = { uid: uid, type: user_type };
     const token = await this.jwtService.signAsync(payload);
     return { token: token };
