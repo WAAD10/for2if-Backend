@@ -15,9 +15,10 @@ export class StudyTableController {
       .into(StudyTable)
       .values([
         {
-          study_date: studyDto.study_date,
-          study_name: studyDto.study_name,
-          study_image: studyDto.study_image,
+          study_date: '2023-6-22',
+          study_name: '2023-1 해커톤',
+          study_image:
+            'https://github.com/WAAD10/for2if-frontend/assets/47862506/12c4340b-aeeb-46a8-b6e5-3c39be85d7c7',
         },
       ])
       .execute();
