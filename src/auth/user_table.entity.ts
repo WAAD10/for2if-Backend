@@ -21,14 +21,17 @@ export class UserTable extends BaseEntity {
   @Column({ type: 'character varying' })
   user_name: string;
 
-    @ManyToOne(type => StudyTable, study_table => study_table.user_tables, {eager : false, nullable : true})
-    study : StudyTable;
+  @ManyToOne((type) => StudyTable, (study_table) => study_table.user_tables, {
+    eager: false,
+    nullable: true,
+  })
+  study: StudyTable;
 
-    @Column({type : 'character varying'})
-    user_image : string;
+  @Column({ type: 'character varying' })
+  user_image: string;
 
-    @Column()
-    user_type : UserTypeEnum;
+  @Column()
+  user_type: UserTypeEnum;
 
   @Column({ type: 'character varying' })
   wallet_id: string;
@@ -46,7 +49,7 @@ export class UserTable extends BaseEntity {
   board_tables: BoardTable[];
 
   @OneToMany((type) => Attendance, (attendance) => attendance.user, {
-    eager: true,
+    eager: false,
   })
   attendances: Attendance[];
 }
