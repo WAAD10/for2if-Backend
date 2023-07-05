@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { UserTable } from "src/auth/user_table.entity";
 import { BoardTable } from "src/board/board_table.entity";
+import { Repository } from "typeorm";
 import { CommentTable } from "./comment_table.entity";
 import { CommentTableRepository } from "./comment_table.repository";
 import { CommentTablePage } from "./comment_table_page";
@@ -9,7 +11,9 @@ import { CreateCommentDto } from "./dto/create-comment.dto";
 @Injectable()
 export class CommentTableService {
     constructor(
-        private readonly commentTableRepository : CommentTableRepository
+        private readonly commentTableRepository : CommentTableRepository,
+        @InjectRepository(UserTable)
+        private readonly userRepository: Repository<UserTable>,
     ) {}
 
     // 게시글에 달린 댓글 하나 생성
@@ -79,6 +83,18 @@ export class CommentTableService {
         const comment = await this.getCommentById(comment_id);
         comment.comment_content = comment_content;
         await this.commentTableRepository.save(comment);
+    }
+
+    async getUserByRequest(arg_req) : Promise<UserTable> {
+        try{
+            const ret_user : UserTable = await this.userRepository.findOne({
+                where: { user_id: arg_req.user.uid }
+            })
+            return ret_user;
+        }
+        catch {
+            return undefined;
+        }
     }
 }
 

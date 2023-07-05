@@ -1,5 +1,6 @@
-import { Body, Delete, Controller, Get, Param, Post, Put, Query, HttpException, HttpStatus, HttpCode } from "@nestjs/common";
-import { GetUser } from "src/auth/get-user.decorator";
+import { Body, Delete, Controller, Get, Param, Post, Put, Query, HttpException, HttpStatus, HttpCode, Request, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "src/auth/auth.guard";
+import { UserTypeEnum } from "src/auth/user-type.enum";
 import { UserTable } from "src/auth/user_table.entity";
 import { BoardTableRepository } from "src/board/board.repository";
 import { BoardTable } from "src/board/board_table.entity";
@@ -12,25 +13,26 @@ export class CommentTableController {
     //private logger = new Logger('CommentTableController');
     constructor(
         private commentTableService : CommentTableService,
-        private boardRepository : BoardTableRepository
+        private boardRepository : BoardTableRepository 
     ) {}
 
+
     @Get('/check')
+    @UseGuards(AuthGuard)
     async checkMe(
-        @GetUser() user : UserTable
+        @Request() req
     ) : Promise<void> {
+        const user : UserTable = await this.commentTableService.getUserByRequest(req);
         console.log(user);
     }
 
 
     // 댓글 가져오기
     @Get('/?')
-    //@UsePipes(ValidationPipe)
     async findAllByBoardID(
         @Query('id') board_id : number,
         @Query('page') page : number
     ) :  Promise<CommentTablePage> {
-        // @@@@@@@@@@@ 이거 임시로 작성한 날림코드니까 반드시 수정할것!!!!
         if(!this.isStringInteger(board_id) || !this.isStringInteger(page)){
             throw new HttpException({
                 errCode: 400,
@@ -50,13 +52,13 @@ export class CommentTableController {
     // 댓글 등록하기
     @Post('/:id')
     @HttpCode(200)
-    //@UsePipes(ValidationPipe) ?
+    @UseGuards(AuthGuard)
     async createComment(
         @Param('id') board_id : number,
         @Body() createCommentDto : CreateCommentDto,
-        @GetUser() user : UserTable
+        @Request() req
     ) : Promise<{success}> {
-        // @@@@@@@@@@@ 이거 임시로 작성한 날림코드니까 반드시 수정할것!!!!
+        const user : UserTable = await this.commentTableService.getUserByRequest(req);
         if(!this.isStringInteger(board_id) || createCommentDto.comment_content === undefined){
             throw new HttpException({
                 errCode: 400,
@@ -83,11 +85,13 @@ export class CommentTableController {
     // 댓글 수정하기
     @Put('/:id')
     @HttpCode(200)
+    @UseGuards(AuthGuard)
     async editComment(
         @Param('id') comment_id : number,
         @Body() createCommentDto : CreateCommentDto,
-        @GetUser() user : UserTable
+        @Request() req
     ) : Promise<{success}> {
+        const user : UserTable = await this.commentTableService.getUserByRequest(req);
         if (!this.isStringInteger(comment_id) || createCommentDto.comment_content === undefined) {
             throw new HttpException({
                 errCode: 400,
@@ -107,14 +111,15 @@ export class CommentTableController {
                 errMsg: "존재하지 않는 댓글입니다."
             }, HttpStatus.BAD_REQUEST);
         }
-
-        if(await this.commentTableService.IsThisUserNotOwnerOfComment(comment_id, user)) {
+        const is_owner : Boolean = !(await this.commentTableService.IsThisUserNotOwnerOfComment(comment_id, user));
+        const can_edit : Boolean = (user.user_type == UserTypeEnum.MANAGE) || is_owner; // MANAGE이거나 작성자면 삭제 가능
+        //console.log("user_uid:", user.user_id, "\nis owner : ", is_owner, "\nusertype: ", user.user_type,"\ncan_edit:", can_edit);
+        if(!can_edit) {
             throw new HttpException({
                 errCode: 400,
                 errMsg: "자신의 댓글만 수정할 수 있습니다."
             }, HttpStatus.BAD_REQUEST);
         }
-
         const comment_content = createCommentDto.comment_content;
         this.commentTableService.editComment(comment_id, comment_content);
         return { success : true };
@@ -123,10 +128,12 @@ export class CommentTableController {
     // 댓글 삭제하기
     @Delete('/:id')
     @HttpCode(200)
+    @UseGuards(AuthGuard)
     async deleteComment(
         @Param('id') comment_id : number,
-        @GetUser() user : UserTable
+        @Request() req
     ) : Promise<{success}> {
+        const user : UserTable = await this.commentTableService.getUserByRequest(req);
         if (!this.isStringInteger(comment_id)) {
             throw new HttpException({
                 errCode: 400,
@@ -146,7 +153,9 @@ export class CommentTableController {
                 errMsg: "존재하지 않는 댓글입니다."
             }, HttpStatus.BAD_REQUEST);
         }
-        if(await this.commentTableService.IsThisUserNotOwnerOfComment(comment_id, user)) {
+        const is_owner : Boolean = !(await this.commentTableService.IsThisUserNotOwnerOfComment(comment_id, user));
+        const can_delete : Boolean = (user.user_type == UserTypeEnum.MANAGE) || is_owner; // MANAGE이거나 작성자면 삭제 가능
+        if(!can_delete) {
             throw new HttpException({
                 errCode: 400,
                 errMsg: "자신의 댓글만 삭제할 수 있습니다."
@@ -172,6 +181,11 @@ export class CommentTableController {
         if(!Number.isInteger(numbered)) {
             return false;
         }
+        // SQL의 integer형의 한계 (-2147483648 ~ +2147483647)를 벗어나는지 확인
+        if(numbered >= +2147483648 || numbered <= -2147483649) {
+            return false;
+        }
+
         return true;
     }
 
