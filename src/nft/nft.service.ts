@@ -8,12 +8,12 @@ import { Repository } from 'typeorm';
 export class NftService {
   constructor(
     @InjectRepository(Nft)
-    private readonly userRepository: Repository<Nft>,
+    private readonly nftRepository: Repository<Nft>,
   ) {}
 
   async saveNft(nftDto: NftDto): Promise<Object> {
-    const { name, image, desc } = nftDto;
-    const nft = await this.userRepository
+    const { name, image, description } = nftDto;
+    const nft = await this.nftRepository
       .createQueryBuilder()
       .insert()
       .into(Nft)
@@ -21,7 +21,7 @@ export class NftService {
         {
           name: name,
           image: image,
-          desc: desc,
+          description: description,
         },
       ])
       .execute();
@@ -30,7 +30,7 @@ export class NftService {
   }
 
   async getNft(id: number): Promise<Object> {
-    const nft = await this.userRepository.findOne({
+    const nft = await this.nftRepository.findOne({
       where: { id: id },
     });
 

@@ -8,5 +8,5 @@ export class NftDto {
   image: string;
 
   @IsNotEmpty()
-  desc: string;
+  description: string;
 }

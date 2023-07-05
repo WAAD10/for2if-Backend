@@ -12,5 +12,5 @@ export class Nft extends BaseEntity {
   image: string;
 
   @Column({ type: 'character varying' })
-  desc: string;
+  description: string;
 }
