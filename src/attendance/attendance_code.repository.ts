@@ -29,16 +29,12 @@ export class AttendanceCodeRepository extends Repository<AttendanceCode> {
 
     // 스터디 정보 및 만료시간(분단위) 받아서 출석코드 생성
     async createAttendanceCode (study : StudyTable, expire_minutes : number) : Promise<AttendanceCode> {
-        const code_array = await this.findAllByStudy(study);
+        const code : AttendanceCode = await this.getTheLatestCodeByStudy(study);
         // 해당 study의 출석코드 중 5분 이내에 생성된 코드가 있는 경우
         // == 하나 들고온 해당 스터디의 가장 최근 출석코드가 만료된 경우
         // => 하나 생성해서 던져줌
-        if(code_array.length == 0 || this.isExpiredNow(code_array[0].expire_time))
+        if(code == null || this.isExpiredNow(code.expire_time))
         {
-            // 존재하는 출석정보 전부 삭제
-            if(code_array.length >= 1) {
-                await this.deleteAttendanceCode(study);
-            }
             // 하나 생성해서 던져줌
             return this.makeOneAttandanceCode(study, expire_minutes);
         }
@@ -48,27 +44,30 @@ export class AttendanceCodeRepository extends Repository<AttendanceCode> {
         else 
         {
             // 존재하는 출석정보 하나 던져줌
-            return code_array[0];
+            return code;
         }
     }
 
-    // 해당 스터디의 출석코드 정보 삭제 (없으면 에러발생)
-    async deleteAttendanceCode(study : StudyTable) : Promise<void> {
-        const studyId = study.study_id;
-        const result = await this.delete(studyId);
-        if (result.affected === 0) {
-            throw new NotFoundException(`Can't find AttendanceCode with study id ${studyId}`);
+    // 해당 스터디의 출석코드 마감시키기 (이미 만료되었거나 출석코드 자체가 생성된 적이 없다면 false를, 그렇지 않다면 수정하고 true 반환)
+    async expireAttendanceCodeByStudy(study : StudyTable) : Promise<boolean> {
+        let code : AttendanceCode = await this.getTheLatestCodeByStudy(study);
+        if (code == null || this.isExpiredNow(code.expire_time)) {
+            return false;
         }
-        console.log('result', result);
+        code.expire_time = this.getCurrentDateTime();
+        await this.save(code);
+        return true;
     }
 
-    // 해당 스터디의 출석코드정보 전부 들고오기
-    async findAllByStudy (study : StudyTable) : Promise<AttendanceCode[]> {
-        const query = this.createQueryBuilder('attendancecode');
-        query.where("attendancecode.studyId = :studyId", {studyId : study.study_id});
-        const results = await query.getMany();
-        return results;
+    // study의 출석코드 중 가장 최근의 것을 불러오기
+    async getTheLatestCodeByStudy(study : StudyTable) : Promise<AttendanceCode> {
+        const query = this.createQueryBuilder("attendance_code");
+        const ret : AttendanceCode = await query.where("attendance_code.studyStudyId = :studyId", {studyId : study.study_id})
+                                                .orderBy("release_time", "DESC")
+                                                .getOne();
+        return ret;
     }
+    
 
     // min ~ max(inclusive) 사이의 정수 랜덤 값 반환
     private rand(min : number, max : number) : number {
@@ -99,14 +98,7 @@ export class AttendanceCodeRepository extends Repository<AttendanceCode> {
     // 현재 시간을 "2023-05-28 17:07" 같은 형식으로 반환해주는 함수
     private getCurrentDateTime(): string {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        
-        const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
-        return currentDateTime;
+        return this.formatDate(now);
     }
 
     // 두자리 숫자 문자열 앞에 0 포맷팅 

@@ -10,7 +10,7 @@ import { CreateCommentDto } from "./dto/create-comment.dto";
 export class CommentTableRepository extends Repository<CommentTable> {
     constructor(
         @InjectRepository(CommentTable)
-        private readonly repository: Repository<CommentTable>
+        private readonly repository: Repository<CommentTable>,
     ) {
         super(repository.target, repository.manager, repository.queryRunner);
     }
