@@ -1,0 +1,9 @@
+db:
+  host: 'localhost'
+  username: 'postgres'
+  password: 'postgres'
+  database: 'board-app',
+  synchronize: true
+
+jwt:
+  secret: 'secret'
