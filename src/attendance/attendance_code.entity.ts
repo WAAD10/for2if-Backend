@@ -4,10 +4,12 @@ import {
   Column,
   Entity,
   ManyToOne,
+
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Attendance } from './attendance.entity';
+
 
 @Entity()
 export class AttendanceCode extends BaseEntity {
@@ -26,6 +28,8 @@ export class AttendanceCode extends BaseEntity {
   @ManyToOne(
     (type) => StudyTable,
     (study_table) => study_table.attendance_codes,
+
+    { eager: true },
   )
   study: StudyTable;
 
@@ -35,4 +39,5 @@ export class AttendanceCode extends BaseEntity {
     eager: true,
   })
   attendances: Attendance[];
+
 }

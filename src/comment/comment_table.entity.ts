@@ -1,3 +1,4 @@
+
 import { IsInt, IsString } from "class-validator";
 import { UserTable } from "src/auth/user_table.entity";
 import { BoardTable } from "src/board/board_table.entity";
@@ -10,11 +11,19 @@ export class CommentTable extends BaseEntity
     @PrimaryGeneratedColumn()
     comment_id : number;
 
-    @ManyToOne(type=>UserTable, user_table => user_table.comment_tables, {eager : false})
-    user : UserTable;
 
-    @ManyToOne(type=>BoardTable, board_table => board_table.comment_tables, {eager : false})
-    board : BoardTable;
+  @ManyToOne((type) => UserTable, (user_table) => user_table.comment_tables, {
+    eager: false,
+  })
+  user: UserTable;
+
+  @ManyToOne(
+    (type) => BoardTable,
+    (board_table) => board_table.comment_tables,
+    { eager: false },
+  )
+  board: BoardTable;
+
 
     @IsString()
     @Column({type : 'character varying'})
@@ -24,3 +33,4 @@ export class CommentTable extends BaseEntity
     @Column({type : 'character varying'})
     comment_content : string;
 }
+
