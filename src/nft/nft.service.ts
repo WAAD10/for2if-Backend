@@ -25,8 +25,15 @@ export class NftService {
         },
       ])
       .execute();
-    console.log(nft);
 
-    return {};
+    return { url: nft.raw[0].id };
+  }
+
+  async getNft(id: number): Promise<Object> {
+    const nft = await this.userRepository.findOne({
+      where: { id: id },
+    });
+
+    return nft;
   }
 }
