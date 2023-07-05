@@ -14,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(userDto: UserDto): Promise<{ accessToken: string }> {
+  async signIn(userDto: UserDto): Promise<Object> {
     const uid = userDto.uid;
     const wallet = userDto.wallet;
     const user = await this.userRepository.findOne({
@@ -39,8 +39,8 @@ export class AuthService {
     }
 
     const user_type = user ? user.user_type : '';
-    const payload = { uid, user_type };
-    const accessToken = await this.jwtService.sign(payload);
-    return { accessToken };
+    const payload = { uid: uid, type: user_type };
+    const token = await this.jwtService.signAsync(payload);
+    return { token: token };
   }
 }
