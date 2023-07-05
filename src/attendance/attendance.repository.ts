@@ -4,6 +4,7 @@ import { UserTable } from "src/auth/user_table.entity";
 import { StudyTable } from "src/study/study_table.entity";
 import { Repository } from "typeorm";
 import { Attendance } from "./attendance.entity";
+import { AttendanceCode } from "./attendance_code.entity";
 
 
 @Injectable()
@@ -16,10 +17,11 @@ export class AttendanceRepository extends Repository<Attendance> {
     }
     
     // 출석정보 하나 생성
-    async makeAttendance(study : StudyTable, user : UserTable) : Promise<Attendance> {
-        const attendance = this.create({
+    async makeAttendance(study : StudyTable, user : UserTable, attendance_code:AttendanceCode) : Promise<Attendance> {
+        const attendance : Attendance = this.create({
             study : study,
-            user : user
+            user : user,
+            attendance_code : attendance_code
         })
         await this.save(attendance);
         return attendance;
