@@ -28,14 +28,10 @@ export class StudyTable extends BaseEntity {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  @OneToMany((type) => UserTable, (user_table) => user_table.study, {
-    eager: true,
-  })
+  @OneToMany((type) => UserTable, (user_table) => user_table.study)
   user_tables: UserTable[];
 
-  @OneToMany((type) => Attendance, (attendance) => attendance.study, {
-    eager: true,
-  })
+  @OneToMany((type) => Attendance, (attendance) => attendance.study)
   attendances: Attendance[];
 
   @OneToMany(

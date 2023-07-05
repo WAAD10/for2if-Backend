@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
+
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+
 // import { Board } from './board_status.enum';
 import { BoardsService } from './board.service';
 import { BoardTable } from './board_table.entity';
@@ -9,7 +11,8 @@ import { ModifyBoardDto } from './dto/modify_board.dto';
 
 @Controller('board')
 export class BoardController {
-  constructor(private boardsService: BoardsService) {}
+  // constructor(private boardsService: BoardsService) {}
+
 
   @Get('/')
   getBoardById(@Query('id') id: number): Promise<BoardTable> {
@@ -23,19 +26,20 @@ export class BoardController {
 	return this.boardsService.createBoard(createBoardDto);
   }
 
-  @Put('/:id')
-  modifyBoard(@Body() modifyBoardDto: ModifyBoardDto): Promise<BoardTable>{
-    return this.boardsService.modifyBoard(modifyBoardDto);
-  }
+
+  // @Put('/:id')
+  // modifyBoard(@Body() modifyBoardDto: ModifyBoardDto): Promise<BoardTable>{
+  //   return this.boardsService.modifyBoard(modifyBoardDto);
+  // }
 
 
-  @Delete('/:id')
-  deletBoard(@Body() deleteBoardDto: DeleteBoardDto): Promise<void>{
-    return this.boardsService.deleteBoard(deleteBoardDto);
-  }
+  // @Delete('/:id')
+  // deletBoard(@Body() deleteBoardDto: DeleteBoardDto): Promise<void>{
+  //   return this.boardsService.deleteBoard(deleteBoardDto);
+  // }
 
-  @Get('/')
-  getAllBoards(): Promise<BoardTable[]>{
-    return this.boardsService.getAllBoards();
-  }
+  // @Get('/')
+  // getAllBoards(): Promise<BoardTable[]>{
+  //   return this.boardsService.getAllBoards();
+  // }
 }
