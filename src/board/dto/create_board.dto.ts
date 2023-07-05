@@ -4,8 +4,8 @@ import { BoardImage } from '../board_image.entity';
 
 export class CreateBoardDto {
   board_title: string;
-  board_category: BoardCategory;
+  board_category_id: number;
   board_content: string;
-  user: UserTable;
-  board_images: BoardImage[];
+  user_id: string;
+  board_images: string[];
 }

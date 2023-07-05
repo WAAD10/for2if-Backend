@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 // import { Board } from './board_status.enum';
 import { BoardsService } from './board.service';
 import { BoardTable } from './board_table.entity';
@@ -12,13 +12,14 @@ export class BoardController {
   constructor(private boardsService: BoardsService) {}
 
   @Get('/')
-  getBoardById(@Param('id') id: number): Promise<BoardTable> {
+  getBoardById(@Query('id') id: number): Promise<BoardTable> {
     return this.boardsService.getBoardById(id);
   }
 
   @Post('/')
-  @UsePipes(ValidationPipe)
-  createBoard(@Body() createBoardDto: CreateBoardDto): Promise<BoardTable>{
+  // @UsePipes(ValidationPipe)
+  createBoard(
+    @Body() createBoardDto: CreateBoardDto): Promise<BoardTable>{
 	return this.boardsService.createBoard(createBoardDto);
   }
 

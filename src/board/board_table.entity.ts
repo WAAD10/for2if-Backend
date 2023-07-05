@@ -37,6 +37,8 @@ export class BoardTable extends BaseEntity {
   })
   user: UserTable;
 
+  @Column({ type: 'boolean' })
+  is_deleted : boolean;
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   @OneToMany((type) => BoardImage, (board_image) => board_image.board, {
