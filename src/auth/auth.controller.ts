@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Request,
@@ -18,6 +19,11 @@ export class AuthController {
   @Post('/login')
   signIn(@Body() userDto: UserDto): Promise<Object> {
     return this.authService.signIn(userDto);
+  }
+
+  @Get('/mentor/:id')
+  giveMentorAuth(@Param('id') id: string) {
+    return this.authService.giveMentorAuth(id);
   }
 
   @Get('/test')

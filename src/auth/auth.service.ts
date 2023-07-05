@@ -14,6 +14,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async giveMentorAuth(uid: string) {
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .update(UserTable)
+      .set({ user_type: UserTypeEnum.MENTOR })
+      .where('user_id = :uid', { uid: uid })
+      .execute();
+
+    return user;
+  }
+
   async signIn(userDto: UserDto): Promise<Object> {
     const uid = userDto.uid;
     const wallet = userDto.wallet;
