@@ -5,9 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeORMConfig from './config/typeorm.config';
 import { BoardModule } from './board/board.module';
+import { NftModule } from './nft/nft.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeORMConfig), AuthModule, BoardModule],
+  imports: [TypeOrmModule.forRoot(typeORMConfig), AuthModule, BoardModule, NftModule],
 
 })
 export class AppModule {}
