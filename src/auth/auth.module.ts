@@ -4,17 +4,16 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
 import { UserTable } from './user_table.entity';
 import { StudyTable } from 'src/study/study_table.entity';
+import { AuthGuard } from './auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-    }),
     TypeOrmModule.forFeature([UserTable]),
     JwtModule.register({
+      global: true,
       secret: 'secret',
       signOptions: {
         expiresIn: 3600,
@@ -22,7 +21,6 @@ import { StudyTable } from 'src/study/study_table.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule],
+  providers: [AuthService, AuthGuard],
 })
 export class AuthModule {}
