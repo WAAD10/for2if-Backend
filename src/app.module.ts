@@ -7,6 +7,7 @@ import typeORMConfig from './config/typeorm.config';
 import { BoardModule } from './board/board.module';
 import { NftModule } from './nft/nft.module';
 import { StudyTableModule } from './study/study_table.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { StudyTableModule } from './study/study_table.module';
     BoardModule,
     NftModule,
     StudyTableModule,
+    AttendanceModule,
   ],
 })
 export class AppModule {}
